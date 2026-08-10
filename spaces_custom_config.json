@@ -1,0 +1,91 @@
+{
+    "entities": [{
+        "entityId": "28494686-e7ff-44df-a4c9-fd492954ac65",
+        "spaceId": "759e2089-9726-4519-ac61-e221146e1fff",
+        "type": "wd_companion_config",
+        "name": "custom_config",
+        "tags": ["configs", "iPhone", "loadbalancer"],
+        "obj": {
+            "version": 1,
+            "game_networks": {
+                "xbl": [{
+                    "friendly_name": "ws_wdogs_x360_master",
+                    "priority": 80
+                }, {
+                    "friendly_name": "ws_wdogs_xboxone_master",
+                    "priority": 220
+                }],
+                "psn": [{
+                    "friendly_name": "ws_wdogs_ps3_master",
+                    "priority": 100
+                }, {
+                    "friendly_name": "ws_wdogs_ps4_master",
+                    "priority": 410
+                }],
+                "wiiu": [{
+                    "friendly_name": "ws_wdogs_wiiu_master",
+                    "priority": 1
+                }],
+                "default": [{
+                    "friendly_name": "ws_wdogs_pc_master",
+                    "priority": 10
+                }]
+            },
+            "urls": {
+                "create_account": "{protocol}://{env}uplayconnect.ubi.com/Default/CreateAccount?appId={genomeId}&lang={language}&nextUrl={nextUrl}",
+                "forgot_password": "{protocol}://{env}uplayconnect.ubi.com/Default/ForgotPassword?appId={genomeId}&lang={language}&NextURL={nextUrl}",
+                "has_accepted_latest_tos": "{protocol}://{env}signupservice.ubi.com/PublicSignupService.svc/REST/HasAcceptedLatestTOS?genomeId={genomeId}&token={token}",
+                "link_first_parties": "http://account.uplay.com",
+                "support": "{protocol}://{env}secure.ubi.com/register/mobile/UplaySupport.aspx?genomeId={genomeId}&lang={language}&NextURL={nextUrl}",
+                "single_sign_on": "{protocol}://{env}externalsso.ubi.com/{appId}/Authenticate?genomeId={genomeId}&ts={timestamp}&encryptedToken64={token}&sig={signature}",
+                "app_data_url_base": "{protocol}://d14qrtl02zrws3.cloudfront.net/{appDataFileName}"
+            }
+        },
+        "lastModified": "2014-11-18T21:23:47.723Z",
+        "revision": 28
+    }, {
+        "entityId": "51796b73-77f6-4ce0-8704-39c09af8c04a",
+        "spaceId": "87987649-94f6-4641-a3db-68629a86703a",
+        "type": "wd_companion_config",
+        "name": "custom_config",
+        "tags": ["android", "configs", "loadbalancer"],
+        "obj": {
+            "version": 1,
+            "game_networks": {
+                "xbl": [{
+                    "friendly_name": "ws_wdogs_x360_master",
+                    "priority": 80
+                }, {
+                    "friendly_name": "ws_wdogs_xboxone_master",
+                    "priority": 220
+                }],
+                "psn": [{
+                    "friendly_name": "ws_wdogs_ps3_master",
+                    "priority": 100
+                }, {
+                    "friendly_name": "ws_wdogs_ps4_master",
+                    "priority": 410
+                }],
+                "wiiu": [{
+                    "friendly_name": "ws_wdogs_wiiu_master",
+                    "priority": 1
+                }],
+                "default": [{
+                    "friendly_name": "ws_wdogs_pc_master",
+                    "priority": 10
+                }]
+            },
+            "urls": {
+                "create_account": "{protocol}://{env}uplayconnect.ubi.com/Default/CreateAccount?appId={genomeId}&lang={language}&nextUrl={nextUrl}",
+                "forgot_password": "{protocol}://{env}uplayconnect.ubi.com/Default/ForgotPassword?appId={genomeId}&lang={language}&NextURL={nextUrl}",
+                "has_accepted_latest_tos": "{protocol}://{env}signupservice.ubi.com/PublicSignupService.svc/REST/HasAcceptedLatestTOS?genomeId={genomeId}&token={token}",
+                "link_first_parties": "http://account.uplay.com",
+                "support": "{protocol}://{env}secure.ubi.com/register/mobile/UplaySupport.aspx?genomeId={genomeId}&lang={language}&NextURL={nextUrl}",
+                "single_sign_on": "{protocol}://{env}externalsso.ubi.com/{appId}/Authenticate?genomeId={genomeId}&ts={timestamp}&encryptedToken64={token}&sig={signature}",
+                "app_data_url_base": "{protocol}://d14qrtl02zrws3.cloudfront.net/{appDataFileName}"
+            }
+        },
+        "lastModified": "2014-11-18T21:24:21.077Z",
+        "revision": 20
+    }]
+}
