@@ -249,9 +249,13 @@ class Handler(BaseHTTPRequestHandler):
 
         # login handshake
         if path.endswith("/profiles/sessions") and self.command == "POST":
+            ticket = "LOCALTICKET." + uuid.uuid4().hex
             return self._send({
                 "platformType": "uplay",
-                "ticket": "LOCALTICKET." + uuid.uuid4().hex,
+                # "token" must carry the auth ticket too. Without it the app
+                # hangs in an infinite load with no error at all.
+                "token": ticket,
+                "ticket": ticket,
                 "profileId": PROFILE_ID,
                 "userId": USER_ID,
                 "nameOnPlatform": PLAYER_NAME,
