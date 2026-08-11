@@ -118,7 +118,7 @@ class Handler(BaseHTTPRequestHandler):
         self.send_header("Content-Length", str(len(payload)))
         self.end_headers()
         self.wfile.write(payload)
-        print(f"  << {code} {json.dumps(obj)[:400]}")
+        print(f"  << {code} {json.dumps(obj)}")
         sys.stdout.flush()
 
     def _log(self, body):
@@ -135,7 +135,7 @@ class Handler(BaseHTTPRequestHandler):
                     value = "Basic <undecodable>"
             print(f"  {key}: {value}")
         if body:
-            print(f"  -- body --\n  {body.decode('utf-8', 'replace')[:2000]}")
+            print(f"  -- body --\n  {body.decode('utf-8', 'replace')}")
         sys.stdout.flush()
 
     # ---------- websocket ----------
@@ -225,7 +225,7 @@ class Handler(BaseHTTPRequestHandler):
                     pass
                 else:
                     text = data.decode("utf-8", "replace")
-                    print(f"  ws << {text[:4000]}")
+                    print(f"  ws << {text}")
                 sys.stdout.flush()
         except Exception as exc:
             print(f"  ws error: {exc}")
@@ -306,18 +306,36 @@ class Handler(BaseHTTPRequestHandler):
         pass
 
 
+def rotate_log():
+    """Archive any previous log so each run starts a clean file."""
+    if os.path.exists(LOG_FILE) and os.path.getsize(LOG_FILE) > 0:
+        stamp = datetime.datetime.fromtimestamp(
+            os.path.getmtime(LOG_FILE)
+        ).strftime("%Y%m%d_%H%M%S")
+        archived = LOG_FILE[:-4] + f".{stamp}.log"
+        try:
+            os.replace(LOG_FILE, archived)
+            return archived
+        except OSError:
+            pass
+    return None
+
+
 if __name__ == "__main__":
-    log_handle = open(LOG_FILE, "a", encoding="utf-8")
+    archived = rotate_log()
+    log_handle = open(LOG_FILE, "w", encoding="utf-8")
     sys.stdout = Tee(sys.__stdout__, log_handle)
 
     cfg = load_config()
     started = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-    print(f"\n{'#' * 70}")
+    print(f"{'#' * 70}")
     print(f"# session started {started}")
     print(f"{'#' * 70}")
     print(f"ctOS local backend on 0.0.0.0:{PORT}  (advertising {SELF})")
     print(f"config file: {'loaded' if cfg else 'NOT FOUND - ' + CONFIG_FILE}")
     print(f"logging to:  {LOG_FILE}")
+    if archived:
+        print(f"previous log archived to {os.path.basename(archived)}")
 
     try:
         ThreadingHTTPServer(("0.0.0.0", PORT), Handler).serve_forever()
