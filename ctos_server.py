@@ -46,6 +46,10 @@ PROFILE_ID = "11111111-2222-3333-4444-555555555555"
 USER_ID = PROFILE_ID
 PLAYER_NAME = "ctOSLocal"
 
+# Live message-delivery endpoints, keyed by profileId. Populated when a
+# websocket is opened; reported back by /profiles/connections.
+CONNECTIONS = {}
+
 
 class Tee:
     """Write everything to the console and to LOG_FILE at the same time."""
@@ -171,7 +175,27 @@ class Handler(BaseHTTPRequestHandler):
         return opcode, data
 
     def _websocket(self):
-        """Complete the RFC6455 handshake, then log everything the app sends."""
+        """Complete the RFC6455 handshake, then log everything the app sends.
+
+        Opening this socket registers a "connection" - a delivery endpoint the
+        peer can be found at - which /profiles/connections then reports.
+        """
+        # register this connection so /profiles/connections can report it
+        types = re.findall(r"messageTypes=([^&]+)", self.path)
+        conn_id = str(uuid.uuid4())
+        CONNECTIONS[PROFILE_ID] = {
+            "connectionId": conn_id,
+            "profileId": PROFILE_ID,
+            "applicationId": APP_ID,
+            "spaceId": SPACE_ID,
+            "processId": os.getpid(),
+            "contactUrl": f"ws://{HOST_IP}:{PORT}/",
+            "contactProtocol": "websocket",
+            "messageTypes": types[0].split(",") if types else [],
+            "lastModifiedDate": now_iso(),
+        }
+        print(f"  registered connection {conn_id} types={CONNECTIONS[PROFILE_ID]['messageTypes']}")
+
         key = self.headers.get("Sec-WebSocket-Key", "")
         accept = base64.b64encode(
             hashlib.sha1((key + WS_MAGIC).encode()).digest()
@@ -253,23 +277,20 @@ class Handler(BaseHTTPRequestHandler):
             if spaces:
                 return self._send(spaces)
             return self._send({"entities": []})
-        # presence: report the caller's own profile as connected, otherwise the
-        # app waits forever for itself to come online. Key is "connections",
-        # not "profiles" (confirmed from strings in libWatchDogs.so).
+        # A "connection" is a registered message-delivery endpoint, not a
+        # presence flag. Field names (connectionId / processId / applicationId /
+        # contactUrl / contactProtocol / lastModifiedDate / messageTypes) come
+        # from strings in libWatchDogs.so. Opening the websocket with
+        # ?messageTypes=... is what registers one.
         if path.endswith("/profiles/connections") or path.endswith("/connections"):
             wanted = re.findall(r"profileIds=([0-9a-fA-F\-,]+)", self.path)
             ids = wanted[0].split(",") if wanted else [PROFILE_ID]
-            return self._send({"connections": [
-                {
-                    "profileId": pid,
-                    "appId": APP_ID,
-                    "applicationId": APP_ID,
-                    "spaceId": SPACE_ID,
-                    "connected": True,
-                    "state": "online",
-                }
-                for pid in ids
-            ]})
+            out = []
+            for pid in ids:
+                conn = CONNECTIONS.get(pid)
+                if conn:
+                    out.append(conn)
+            return self._send({"connections": out})
 
         if path.endswith("/profiles/me/friends"):
             return self._send({"friends": []})
