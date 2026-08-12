@@ -98,6 +98,17 @@ def load_config():
         return json.loads(rewrite_hosts(fh.read()))
 
 
+def load_definition(name):
+    """Companion player definition blobs (xp / progression / achievements)."""
+    path = os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                        "companionplayer", f"{name}.json")
+    if not os.path.exists(path):
+        print(f"  !! definition '{name}' missing")
+        return {}
+    with open(path, "r", encoding="utf-8") as fh:
+        return json.load(fh)
+
+
 def load_spaces():
     """The real wd_companion_config space entity (game_networks + urls)."""
     if not os.path.exists(SPACES_FILE):
@@ -274,6 +285,35 @@ class Handler(BaseHTTPRequestHandler):
             if cfg:
                 return self._send(cfg)
             print("  !! config file missing, returning empty")
+
+        # ---- companion backend: /public/companionplayer/v1/* ----
+        # Hosted under the Rendezvous sandbox path (WDOGS_COMPANION_LNCH_A).
+        # Field codes from LeonTheo02's OpenQuazal.
+        if path.endswith("/public/companionplayer/v1/get_player_data"):
+            return self._send({
+                "xpdf": load_definition("xp_definition"),
+                "prdf": load_definition("progression_definition"),
+                "acdf": load_definition("achievements_definition"),
+                "prog": {
+                    "xp": 3650,      # xp
+                    "lvl": 7,        # level
+                    "skpt": 3,       # skill points
+                    "ptlv": 2,       # patrol car level
+                    "inlv": 1,       # interceptor level
+                    "sulv": 3,       # suv level
+                    "swlv": 0,       # swat suv level
+                    "cclv": 4,       # ctOS powers level
+                    "chlv": 1,       # helicopter level
+                    "scor": 1500,    # score
+                    "votd": 0,       # unknown
+                },
+                "achv": {},          # achievements
+                "ctls": {"values": []},  # contact list
+            })
+
+        if "/public/companionplayer/" in path:
+            # add_contact / buy_upgrade / redeem_code / etc - not implemented yet
+            return self._send({})
 
         # spaces entities - serve the real wd_companion_config if we have it
         if path.endswith("/spaces/entities") or ("/spaces/" in path and path.endswith("/entities")):
